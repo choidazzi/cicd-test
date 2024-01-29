@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html xmlns:th="http//www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layouts/default}">
+
+<template layout:fragment="vueTemplate" id="vueTemplate">
+	<div class="card">
+	  <div class="card-body">
+	    <h5 class="card-title">게시글 등록</h5>
+	
+	    <!-- Floating Labels Form -->
+	    <form class="row g-3">
+	      <div class="col-md-12">
+	        <div class="form-floating">
+	          <input type="text" class="form-control" id="floatingTitle" v-model="postVO.postTtl">
+	          <label for="floatingTitle">제목</label>
+	        </div>
+	      </div>
+	      <div class="row mt-3">
+	      	<label for="inputNumber" class="col-sm-2 col-form-label">File Upload</label>
+	      	<div class="col-sm-10">
+            <input class="form-control" type="file" id="formFile" @change="handleFileChange" multiple>
+          </div>
+	      </div>
+	      
+	      <div class="col-12">
+	        <div class="form-floating">
+	          <textarea v-model="postVO.postCnt" class="form-control" id="floatingContent" style="height: 300px;"></textarea>
+	          <label for="floatingContent">내용</label>
+	        </div>
+	      </div>
+	      
+	      <div class="text-center">
+	        <button type="button" @click="register" class="btn btn-primary me-1">SAVE</button>
+	        <button type="button" @click="goDetail" class="btn btn-secondary">CANCEL</button>
+	      </div>
+	    </form><!-- End floating Labels Form -->
+	  </div>
+	</div>
+</template>
+
+<script type="text/javascript" layout:fragment="vueScript">
+Vue.createApp({ 
+    template: '#vueTemplate',
+    data() { 
+      return {
+    	  postVO: {
+	    	  postTtl: '',
+	    	  postCnt: '',
+    	  },
+        files: []
+      }
+    },
+    mounted(){
+    },
+    methods: {
+    	//게시물 등록
+    	register() {
+    		var vm = this;
+    		const formData = new FormData();
+    		formData.append("postVO", JSON.stringify(vm.postVO));
+    		
+    		if (vm.files.length > 0) {
+	    		for (let i = 0; i < vm.files.length; i++) {
+	          formData.append("files", vm.files[i], vm.files[i].name);
+	        }
+    		}
+    		if (confirm('등록하시겠습니까?')) {
+	    		$.ajax({
+	    			url: '/api/v1/posts',
+	    			type: 'post',
+	   			  processData:false,
+	          contentType:false,
+	          data: formData,
+	          success: function() {
+	        	  location.href = "/front/boards"
+	          }
+	    		})
+    		}
+    	},
+    	goDetail() {
+    		location.href = G_CONST.CPATH + "/front/boards/" + this.postId
+    	},
+    	handleFileChange(event) {
+    		this.files = event.target.files;
+    	}
+    }
+  }).mount('#app')
+</script>
+<style layout:fragment="vueStyle">
+</style>
+</html>

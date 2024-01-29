@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html xmlns:th="http//www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layouts/default}">
+
+<template layout:fragment="vueTemplate" id="vueTemplate">
+	<div class="card">
+	  <div class="card-body">
+	    <h5 class="card-title">게시글 상세 / [[ ${ postId } ]]</h5>
+	
+	    <!-- Floating Labels Form -->
+	    <form class="row g-3">
+	      <div class="col-md-12">
+	        <div class="form-floating">
+	          <input type="text" class="form-control" id="floatingTitle" v-model="postInfo.postTtl">
+	          <label for="floatingTitle">제목</label>
+	        </div>
+	      </div>
+	      <div class="col-md-6">
+	        <div class="form-floating">
+	          <input type="text" class="form-control" id="floatingRgstNm" v-model="postInfo.userNm" readonly>
+	          <label for="floatingRgstNm">등록자</label>
+	        </div>
+	      </div>
+	      <div class="col-md-6">
+	        <div class="form-floating">
+	          <input type="text" class="form-control" id="floatingRgstDt" v-model="postInfo.rgstDt" readonly>
+	          <label for="floatingRgstDt">등록일자</label>
+	        </div>
+	      </div>
+	      <div class="row mt-3">
+	      	<label for="inputNumber" class="col-sm-2 col-form-label">File Upload</label>
+	      	<div class="col-sm-10">
+            <input class="form-control" type="file" id="formFile" @change="handleFileChange" multiple>
+          </div>
+	      </div>
+	      <div class="col-md-12" v-if="fileInfo.length != 0">
+	      	<span class="me-1" v-for="file in fileInfo" :key="fileInfo.fileId">
+		      	<span class="badge bg-light text-dark"><i class="bi bi-star me-1"></i> 
+			      	<a :href="`/api/v1/posts/${file.fileId}/download`" download>{{ file.fileOrgNm }}</a>
+			      	<br/>
+              <img
+                :src="`/api/v1/files/${file.fileId}`"
+                class="image"
+                :alt="`${file.fileOrgNm}`"
+                width="100px"
+                height="100%"
+              />
+		      	</span>
+	      	</span>
+	      </div>
+	      <div class="col-12">
+	        <div class="form-floating">
+	          <textarea class="form-control" id="floatingContent" style="height: 100px;">{{ postInfo.postCnt }}</textarea>
+	          <label for="floatingContent">내용</label>
+	        </div>
+	      </div>
+	      
+	      <div class="text-center">
+	        <button type="button" @click="save" class="btn btn-primary me-1">SAVE</button>
+	        <button type="button" @click="goDetail" class="btn btn-secondary">CANCEL</button>
+	      </div>
+	    </form><!-- End floating Labels Form -->
+	  </div>
+	</div>
+</template>
+
+<script type="text/javascript" layout:fragment="vueScript">
+Vue.createApp({ 
+    template: '#vueTemplate',
+    data() { 
+      return {
+        postId: '[[ ${ postId } ]]',
+        fileInfo: [],
+        postInfo: {},
+        files: []
+      }
+    },
+    mounted(){
+    	this.getDetails();
+    },
+    methods: {
+    	//게시물 상세 조회
+    	getDetails() {
+    		var vm = this;
+       	$.ajax({
+       		url: '/api/v1/posts/' + this.postId,
+       		type: 'GET',
+       		success: function(res) {
+       			vm.fileInfo = res.fileInfo;
+       			vm.postInfo = res.postInfo;
+       		}
+       	})
+    	},
+    	//게시물 수정 저장
+    	save() {
+    		var vm = this;
+    		const formData = new FormData();
+    		formData.append("postVO", JSON.stringify(vm.postInfo));
+    		
+    		if (vm.files.length > 0) {
+	    		for (let i = 0; i < vm.files.length; i++) {
+	          formData.append("files", vm.files[i], vm.files[i].name);
+	        }
+    		}
+    		if (confirm('수정하시겠습니까?')) {
+	    		$.ajax({
+	    			url: '/api/v1/posts',
+	    			type: 'put',
+	   			  processData:false,
+	          contentType:false,
+	          data: formData,
+	          success: function() {
+	        	  vm.goDetail();
+	          }
+	    		})
+    		}
+    	},
+    	goDetail() {
+    		location.href = G_CONST.CPATH + "/front/boards/" + this.postId
+    	},
+    	handleFileChange(event) {
+    		this.files = event.target.files;
+    	}
+    }
+  }).mount('#app')
+</script>
+<style layout:fragment="vueStyle">
+</style>
+</html>

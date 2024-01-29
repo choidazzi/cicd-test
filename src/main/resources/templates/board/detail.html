@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html xmlns:th="http//www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layouts/default}">
+
+<template layout:fragment="vueTemplate" id="vueTemplate">
+	<div class="card">
+	  <div class="card-body">
+	    <h5 class="card-title">게시글 상세 / [[ ${ postId } ]]</h5>
+	
+	    <!-- Floating Labels Form -->
+	    <form class="row g-3">
+	      <div class="col-md-12">
+	        <div class="form-floating">
+	          <input type="text" class="form-control" id="floatingTitle" v-model="postInfo.postTtl" readonly>
+	          <label for="floatingTitle">제목</label>
+	        </div>
+	      </div>
+	      <div class="col-md-6">
+	        <div class="form-floating">
+	          <input type="text" class="form-control" id="floatingRgstNm" v-model="postInfo.userNm" readonly>
+	          <label for="floatingRgstNm">등록자</label>
+	        </div>
+	      </div>
+	      <div class="col-md-6">
+	        <div class="form-floating">
+	          <input type="text" class="form-control" id="floatingRgstDt" v-model="postInfo.rgstDt" readonly>
+	          <label for="floatingRgstDt">등록일자</label>
+	        </div>
+	      </div>
+	      <div class="col-md-12" v-if="fileInfo.length != 0">
+	      	<span class="me-1" v-for="file in fileInfo" :key="fileInfo.fileId">
+		      	<span class="badge bg-light text-dark"><i class="bi bi-star me-1"></i> 
+			      	<a :href="`/api/v1/posts/${file.fileId}/download`" download>{{ file.fileOrgNm }}</a>
+			      	<br/>
+              <img
+                :src="`/api/v1/files/${file.fileId}`"
+                class="image"
+                :alt="`${file.fileOrgNm}`"
+                width="100px"
+                height="100%"
+              />
+		      	</span>
+	      	</span>
+	      </div>
+	      <div class="col-12">
+	        <div class="form-floating">
+	          <textarea class="form-control" id="floatingContent" style="height: 100px;" readonly>{{ postInfo.postCnt }}</textarea>
+	          <label for="floatingContent">내용</label>
+	        </div>
+	      </div>
+	      
+	      <div class="text-center">
+	        <button type="button" @click="goEdit" class="btn btn-primary me-1">EDIT</button>
+	        <button type="button" @click="deletePost" class="btn btn-danger me-1">DELETE</button>
+	        <button type="button" @click="goList" class="btn btn-secondary">LIST</button>
+	      </div>
+	    </form><!-- End floating Labels Form -->
+	  </div>
+	</div>
+</template>
+
+<script type="text/javascript" layout:fragment="vueScript">
+Vue.createApp({ 
+    template: '#vueTemplate',
+    data() { 
+      return {
+        postId: '[[ ${ postId } ]]',
+        fileInfo: [],
+        postInfo: [],
+      }
+    },
+    mounted(){
+    	var vm = this;
+    	$.ajax({
+    		url: '/api/v1/posts/' + this.postId,
+    		type: 'GET',
+    		success: function(res) {
+    			vm.fileInfo = res.fileInfo;
+    			vm.postInfo = res.postInfo;
+    		}
+    	});
+    },
+    methods: {
+    	deletePost() {
+    		var vm = this;
+    		if (confirm('삭제하시겠습니까?')) {
+	    		$.ajax({
+	    			url: '/api/v1/posts/' + this.postId,
+	    			type: 'delete',
+	    			success: function() {
+	    				location.href = G_CONST.CPATH + '/front/boards';
+	    			}
+	    		});
+    		}
+    	},
+    	goEdit() {
+    		location.href = G_CONST.CPATH + '/front/boards/' + this.postId + '/edit'
+    	},
+    	goList() {
+    		location.href = G_CONST.CPATH + '/front/boards/'
+    	}
+    }
+  }).mount('#app')
+</script>
+<style layout:fragment="vueStyle">
+</style>
+</html>

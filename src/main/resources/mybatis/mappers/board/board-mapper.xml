@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="kr.letech.study.boot.board.dao.BoardDAO">
+    <select id="getNavItems" resultType="kr.letech.study.boot.board.vo.BoardVO">
+        SELECT BOARD_ID
+             , BOARD_NM
+          FROM TB_BOARD
+         WHERE DEL_YN = 'N'
+    </select>
+
+    <select id="getAllPostByBoard" resultType="kr.letech.study.boot.board.vo.PostVO">
+        SELECT TP.POST_ID
+             , TP.USER_ID
+             , TU.USER_NM
+             , TP.POST_TTL
+             , TP.RGST_DT
+             , TP.UPDT_DT
+          FROM TB_POST TP
+         INNER JOIN TB_USER TU ON (TP.USER_ID = TU.USER_ID) 
+          WHERE TP.DEL_YN = 'N'
+         <choose>
+            <when test=" 'postTtl'.equals(type) "> 
+            AND TP.POST_TTL LIKE CONCAT('%', #{keyword}, '%')
+            </when>
+            <when test=" 'postCnt'.equals(type) ">
+            AND TP.POST_CNT LIKE CONCAT('%', #{keyword}, '%')
+            </when>
+            <when test=" 'userNm'.equals(type) ">
+            AND TU.USER_NM LIKE #{keyword}
+            </when>
+         </choose>
+         ORDER BY RGST_DT DESC
+    </select>
+
+    <select id="getBoardSeq" resultType="string">
+        select LPAD(NEXTVAL(BOARD_SEQ), 4, '0')
+    </select>
+
+    <update id="modifyBoard" parameterType="kr.letech.study.boot.board.vo.BoardVO">
+        UPDATE TB_BOARD
+           SET BOARD_NM = #{boardNm}
+             , UPDT_DT = NOW()
+             , UPDT_ID = #{updtId}
+         WHERE BOARD_ID = #{boardId}
+    </update>
+
+    <update id="deleteBoard" parameterType="string">
+        UPDATE TB_BOARD
+           SET DEL_YN = 'Y'
+             , UPDT_DT = NOW()
+             , UPDT_ID = #{updtId}
+         WHERE BOARD_ID = #{boardId}
+    </update>
+
+    <insert id="insertBoard" parameterType="kr.letech.study.boot.board.vo.BoardVO">
+        INSERT INTO TB_BOARD ( BOARD_ID
+                             , BOARD_NM
+                             , RGST_DT
+                             , RGST_ID
+                             , UPDT_DT
+                             , UPDT_ID
+                             , DEL_YN)
+        VALUES ( #{boardId}
+               , #{boardNm}
+               , NOW()
+               , #{rgstId}
+               , NOW()
+               , #{updtId}
+               , 'N')
+    </insert>
+</mapper>

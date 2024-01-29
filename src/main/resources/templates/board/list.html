@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html xmlns:th="http//www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layouts/default}">
+
+<template layout:fragment="vueTemplate" id="vueTemplate">
+	<div class="pagetitle">
+		<h1>게시판</h1>
+		<nav>
+			<ol class="breadcrumb">
+				<li class="breadcrumb-item"><a
+					href="${CPATH}/cmmn/user/userList.do">Home</a></li>
+				<li class="breadcrumb-item active">게시판</li>
+			</ol>
+		</nav>
+	</div>
+	<section class="section">
+		<div class="row">
+			<div class="col">
+				<div class="card">
+					<div class="card-body">
+						<h5 class="card-title">게시글 검색</h5>
+						<div class="row">
+							<div class="col-sm-8 col-md-4">
+								<div class="row">
+									<label for="keyword" class="col-md-2 col-form-label">유형</label>
+									<div class="col-md-10">
+										<select @change="handleSelectChange" name="type"
+											class="form-select" aria-label="Default select example">
+											<option selected="">유형을 선택해주세요</option>
+											<option value="postTtl">제목</option>
+											<option value="postCnt">내용</option>
+											<option value="userNm">작성자</option>
+										</select>
+									</div>
+								</div>
+							</div>
+							<label for="keyword" class="col-md-1 col-form-label">검색어</label>
+							<div class="col-md-6">
+								<input type="text" name="keyword" class="form-control"
+									v-model.trim="boardVO.keyword">
+							</div>
+						</div>
+						<div class="row float-end">
+							<button type="button" class="btn float-right btn-primary "
+								@click="search">
+								<i class="bi bi-search">검색</i>
+							</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col">
+				<div class="card">
+					<div class="card-body">
+						<h5 class="card-title">글 목록</h5>
+						<button @click="goRegister" class="btn float-right btn-primary">등록</button>
+						<table class="table table-bordered">
+							<caption class="d-none">게시글 목록 검색조건(제목, 작성자, 내용)</caption>
+							<thead>
+								<tr>
+									<th scope="col">No</th>
+									<th scope="col">등록자</th>
+									<th scope="col">제목</th>
+									<th scope="col">등록일자</th>
+								</tr>
+							</thead>
+							<tbody v-if="pageInfo.list != null && pageInfo.list.length > 0">
+								<tr v-for="(vo, idx) in pageInfo.list" :key="vo.userId">
+									<td>{{ (pageInfo.pageNum - 1) * 10 + idx + 1 }}</td>
+									<td>{{ vo.userNm }}</td>
+									<td><a :href="getUrl(vo)">{{ vo.postTtl }}</a></td>
+									<td>{{ vo.rgstDt }}</td>
+								</tr>
+							</tbody>
+							<tbody v-else>
+								<tr>
+									<th scope="row" colspan="5">데이터가 없습니다.</th>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+					<nav aria-label="...">
+          <ul class="pagination justify-content-center">
+            <li class="page-item" :class="{ disabled: !pageInfo.hasPreviousPage }">
+						    <a class="page-link" @click="changePage(pageInfo.prePage)" tabindex="-1">Previous</a>
+						</li>
+						
+						<li class="page-item" :class="{ active: pageInfo.pageNum == page }" v-for="page in pageInfo.pages" :key="page">
+						    <a class="page-link" @click="changePage(page)" href="#">{{ page }}</a>
+						</li>
+						<li class="page-item" :class="{ disabled: !pageInfo.hasNextPage }">
+						    <a class="page-link" @click="changePage(pageInfo.nextPage)" href="#">Next</a>
+						</li>
+          </ul>
+        </nav>
+				</div>
+			</div>
+		</div>
+	</section>
+</template>
+
+<script type="text/javascript" layout:fragment="vueScript">
+	Vue.createApp({ 
+	    template: '#vueTemplate',
+	    data() { 
+	      return {
+	        boardVO:{
+	        	 type: '[[${param.type}]]'
+	        	,keyword: '[[${param.keyword}]]'
+	        	,pageNum: 1
+	        },
+	        pageInfo: {
+	        	hasNextPage: false,
+	        	hasPreviousPage: false,
+	        	list: [],	
+	        	nextPage: 0,
+	        	pageNum: 1,
+	        	pages: 1,
+	        	total: 0
+	        }
+	      }
+	    },
+	    mounted(){
+	    	this.search();
+	    },
+	    methods:{
+	    	search(){
+	    		var vm = this;
+	    		vm.boardVO.pageNum = vm.pageInfo.pageNum; 
+	    		$.ajax({
+	    		  url:G_CONST.CPATH+'/api/v1/boards'
+	    		, type:'get'
+	    		, data: vm.boardVO
+	    		, dataType: 'json'
+	    		, success: function(pageInfo){
+	    			vm.pageInfo = pageInfo;
+	    			vm.boardVO.pageNum = pageInfo.pageNum;
+	    		}
+	    		,error : function(){
+	    			alert('오류가 발생했습니다. \n잠시 후 다시 검색해주세요');
+	    		}
+	    	});
+	    	},
+	    	getUrl(vo){
+	    		 return G_CONST.CPATH+"/front/boards/"+vo.postId
+	    	},
+	    	goRegister(){
+	    		location.href = G_CONST.CPATH+"/front/boards/register";
+	    	},
+	    	handleSelectChange(event) {
+	    		this.boardVO.type = event.target.value;
+	    	},
+	    	changePage(page) {
+	            if (page != this.pageInfo.pageNum) {
+	                this.pageInfo.pageNum = page;
+	                this.search();
+	            }
+	        },
+	    },
+	  }).mount('#app')
+</script>
+<style layout:fragment="vueStyle">
+</style>
+</html>

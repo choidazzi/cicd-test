@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="kr.letech.study.boot.cmmn.security.dao.UserDao">
+    <select id="getUserInfo" resultType="kr.letech.study.boot.cmmn.security.vo.UserVO" parameterType="String">
+        SELECT USER_ID
+             , USER_PW
+             , USER_NM
+        FROM TB_USER
+        WHERE USER_ID = #{userId}
+    </select>
+
+    <select id="getUserAuth" resultType="string" parameterType="string">
+        SELECT ROLE_ID
+          FROM TB_USERAUTH
+         WHERE USER_ID = #{userId}
+    </select>
+    
+    <select id="getAllAuth" resultType="kr.letech.study.boot.cmmn.security.vo.RoleVO">
+    	SELECT ROLE_ID
+    		 , ROLE_NM
+    	  FROM TB_ROLE
+    </select>
+
+    <insert id="signInUser" parameterType="kr.letech.study.boot.cmmn.security.vo.UserVO">
+        INSERT INTO TB_USER( USER_ID
+                           , USER_NM
+                           , USER_PW)
+        VALUES ( #{userId}
+               , #{userNm}
+               , #{userPw})
+    </insert>
+
+    <insert id="signInAuth" parameterType="kr.letech.study.boot.cmmn.security.vo.UserAuthVO">
+        INSERT INTO TB_USERAUTH( USER_ID
+                               , ROLE_ID)
+        VALUES ( #{userId}
+               , #{roleId})
+    </insert>
+</mapper>

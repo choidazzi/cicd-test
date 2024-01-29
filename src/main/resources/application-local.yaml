@@ -1,0 +1,45 @@
+#local
+server:
+  port: 8080
+
+#pagehelper
+pagehelper:
+  helper-dialect: mariadb
+  reasonable: true
+
+#datasource
+spring:
+  datasource:
+    driver-class-name: org.mariadb.jdbc.Driver  
+    url: jdbc:mariadb://localhost:3306/mydb
+    username: myuser
+    password: myuser
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+  thymeleaf:
+    prefix: classpath:/templates/
+    sufix: .html
+    cache: false
+    check-template-location: true
+
+#mybatis
+mybatis:
+  mapper-locations: classpath:mybatis/mappers/**/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+
+#file
+file:
+  directory: d:/local/file
+
+# log 설정
+logging:
+  level:
+    org:
+      hibernate:
+       SQL: debug
+       type:
+         descriptor:
+           sql: trace

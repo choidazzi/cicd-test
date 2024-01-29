@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="kr.letech.study.boot.board.dao.FileDAO">
+    <insert id="insertFile" parameterType="kr.letech.study.boot.board.vo.FileVO">
+        INSERT INTO TB_FILE ( FILE_ID
+                            , POST_ID
+                            , FILE_ORG_NM
+                            , FILE_SAVE_NM
+                            , FILE_SIZE
+                            , FILE_PATH
+                            , RGST_DT
+                            , RGST_ID
+                            , UPDT_DT
+                            , UPDT_ID
+                            , DEL_YN)
+        VALUES ( #{fileId}
+               , #{postId}
+               , #{fileOrgNm}
+               , #{fileSaveNm}
+               , #{fileSize}
+               , #{filePath}
+               , NOW()
+               , #{rgstId}
+               , NOW()
+               , #{updtId}
+               , 'N')
+    </insert>
+    
+    <select id="getFileByPost" parameterType="string" resultType="kr.letech.study.boot.board.vo.FileVO">
+    	SELECT FILE_ID
+		     , FILE_ORG_NM
+		     , FILE_SIZE
+	      FROM TB_FILE
+	     WHERE POST_ID = #{postId}
+	       AND DEL_YN = 'N'
+    </select>
+
+    <select id="getFileById" parameterType="string" resultType="kr.letech.study.boot.board.vo.FileVO">
+    	SELECT FILE_ID
+		     , FILE_ORG_NM
+		     , FILE_SAVE_NM
+		     , FILE_SIZE
+		     , FILE_PATH
+	      FROM TB_FILE
+	     WHERE FILE_ID = #{fileId}
+	       AND DEL_YN = 'N'
+    </select>
+    
+    <update id="deleteFile" parameterType="kr.letech.study.boot.board.vo.FileVO">
+    	UPDATE TB_FILE
+           SET DEL_YN = 'Y'
+             , UPDT_DT = NOW()
+             , UPDT_ID = #{updtId}
+         WHERE FILE_ID = #{fileId}
+    </update>
+</mapper>
