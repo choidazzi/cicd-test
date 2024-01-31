@@ -6,7 +6,7 @@
 <template layout:fragment="vueTemplate" id="vueTemplate">
 	<div class="card">
 	  <div class="card-body">
-	    <h5 class="card-title">게시글 상세 / [[ ${ postId } ]]</h5>
+	    <h5 class="card-title">게시글 상세</h5>
 	
 	    <!-- Floating Labels Form -->
 	    <form class="row g-3">
@@ -24,7 +24,7 @@
 	      </div>
 	      <div class="col-md-6">
 	        <div class="form-floating">
-	          <input type="text" class="form-control" id="floatingRgstDt" v-model="postInfo.rgstDt" readonly>
+	          <input type="text" class="form-control" id="floatingRgstDt" v-model="postInfo.rgstDt.split(' ')[0]" readonly>
 	          <label for="floatingRgstDt">등록일자</label>
 	        </div>
 	      </div>

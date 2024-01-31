@@ -5,7 +5,6 @@
 
 <template layout:fragment="vueTemplate" id="vueTemplate">
 	<div class="pagetitle">
-		<h1>게시판</h1>
 		<nav>
 			<ol class="breadcrumb">
 				<li class="breadcrumb-item"><a
@@ -21,10 +20,10 @@
 					<div class="card-body">
 						<h5 class="card-title">게시글 검색</h5>
 						<div class="row">
-							<div class="col-sm-8 col-md-4">
+							<div class="col-md-2">
 								<div class="row">
-									<label for="keyword" class="col-md-2 col-form-label">유형</label>
-									<div class="col-md-10">
+									<label for="keyword" class="col-md-3 col-form-label">유형</label>
+									<div class="col-md-9">
 										<select @change="handleSelectChange" name="type"
 											class="form-select" aria-label="Default select example">
 											<option selected="">유형을 선택해주세요</option>
@@ -35,17 +34,19 @@
 									</div>
 								</div>
 							</div>
-							<label for="keyword" class="col-md-1 col-form-label">검색어</label>
-							<div class="col-md-6">
-								<input type="text" name="keyword" class="form-control"
-									v-model.trim="boardVO.keyword">
+							<div class="col-md-9">
+								<div class="row">
+									<label for="keyword" class="col-md-1 col-form-label text-end">검색어</label>
+									<div class="col-md-4">
+										<input type="text" name="keyword" class="form-control"
+											   v-model.trim="boardVO.keyword">
+									</div>
+									<button type="button" class="btn float-right btn-primary col-md-1"
+											@click="search">
+										<i class="bi bi-search">검색</i>
+									</button>
+								</div>
 							</div>
-						</div>
-						<div class="row float-end">
-							<button type="button" class="btn float-right btn-primary "
-								@click="search">
-								<i class="bi bi-search">검색</i>
-							</button>
 						</div>
 					</div>
 				</div>
@@ -55,24 +56,28 @@
 			<div class="col">
 				<div class="card">
 					<div class="card-body">
-						<h5 class="card-title">글 목록</h5>
-						<button @click="goRegister" class="btn float-right btn-primary">등록</button>
+						<div class="row align-items-center">
+							<h5 class="card-title col-md-3 ps-3">글 목록</h5>
+							<div class="col-md-9 text-end">
+								<button @click="goRegister" class="btn float-right btn-primary">등록</button>
+							</div>
+						</div>
 						<table class="table table-bordered">
 							<caption class="d-none">게시글 목록 검색조건(제목, 작성자, 내용)</caption>
 							<thead>
-								<tr>
-									<th scope="col">No</th>
-									<th scope="col">등록자</th>
-									<th scope="col">제목</th>
-									<th scope="col">등록일자</th>
+								<tr class="text-center">
+									<th scope="col" class="col-1">No</th>
+									<th scope="col" class="col-1">등록자</th>
+									<th scope="col" class="col-8">제목</th>
+									<th scope="col" class="col-2">등록일자</th>
 								</tr>
 							</thead>
 							<tbody v-if="pageInfo.list != null && pageInfo.list.length > 0">
-								<tr v-for="(vo, idx) in pageInfo.list" :key="vo.userId">
+								<tr v-for="(vo, idx) in pageInfo.list" :key="vo.userId" class="text-center">
 									<td>{{ (pageInfo.pageNum - 1) * 10 + idx + 1 }}</td>
 									<td>{{ vo.userNm }}</td>
 									<td><a :href="getUrl(vo)">{{ vo.postTtl }}</a></td>
-									<td>{{ vo.rgstDt }}</td>
+									<td>{{ vo.rgstDt.split(' ')[0] }}</td>
 								</tr>
 							</tbody>
 							<tbody v-else>
