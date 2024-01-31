@@ -49,7 +49,7 @@ public class FileServiceImpl implements FileService{
             File saveFile = new File(uploadPath, saveNm);
 
             try {
-                file.transferTo(saveFile);
+                file.transferTo(saveFile.toPath());
             } catch (IOException e) {
                 throw new RuntimeException(e);
             } 
