@@ -11,7 +11,7 @@ pagehelper:
 spring:
   datasource:
     driver-class-name: org.mariadb.jdbc.Driver  
-    url: jdbc:mariadb://192.168.255.10:3306/mydb
+    url: jdbc:mariadb://192.168.100.243:3306/mydb
     username: myuser
     password: myuser
   servlet:
